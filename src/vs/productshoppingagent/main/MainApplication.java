@@ -1,33 +1,75 @@
 package vs.productshoppingagent.main;
 
-import org.apache.thrift.TException;
-import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.transport.TSocket;
-import org.apache.thrift.transport.TTransport;
-import org.apache.thrift.transport.TTransportException;
 import vs.shopservice.ShopService;
+import vs.shopservice.ShopServiceClientFactory;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.List;
+import java.util.Properties;
 
 /**
- * Created by franky3er on 10.05.17.
+ * Main Application
  */
 public class MainApplication {
-    public static void main(String []args) {
-        //TODO ..........
+    private final static String PROJECT_NAME = "ProductShoppingAgent";
+    private final static String PROJECT_CONFIG = System.getProperty("user.dir") + File.separator +
+            "config" + File.separator + PROJECT_NAME + ".properties";
 
-        TTransport transport = new TSocket("localhost", 31337);
+    private final static String PRODUCTSHOPPINGAGENT_SHOPSERVICE_CLIENTS_XMLSOURCE = "ProductShoppingAgent.ShopService.Clients.XMLSource";
+    private final static String PRODUCTSHOPPINGAGENT_SHOPSERVICE_PRODUCTSREFILLINFO_XMLSOURCE = "ProductShoppingAgent.ShopService.ProductsRefillInfo.XMLSource";
 
+    private static String shopServiceClientsXmlSource;
+    private static String shopServiceProductsXMLSource;
+
+    private static List<ShopService.Client> clients;
+
+    public static void main(String[] args) {
         try {
-            transport.open();
-            TProtocol protocol = new TBinaryProtocol(transport);
-            ShopService.Client client = new ShopService.Client(protocol);
+            loadConfig();
+            initialize();
+            run();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            closeClients();
+        }
+    }
 
-            long preis = client.fetchProductPrice("Milk", "20.0");
-            System.out.println(preis);
-        } catch (TTransportException e) {
-            e.printStackTrace();
-        } catch (TException e) {
-            e.printStackTrace();
+    private static void loadConfig() throws IOException {
+        System.out.println("INFO : Loading config...");
+        Properties properties = new Properties();
+        properties.load(new FileReader(PROJECT_CONFIG));
+        shopServiceClientsXmlSource = properties.getProperty(PRODUCTSHOPPINGAGENT_SHOPSERVICE_CLIENTS_XMLSOURCE);
+        shopServiceProductsXMLSource = properties.getProperty(PRODUCTSHOPPINGAGENT_SHOPSERVICE_PRODUCTSREFILLINFO_XMLSOURCE);
+    }
+
+    private static void initialize() {
+        initializeShopServiceClients();
+        initializeProductsRefillInfo();
+    }
+
+    private static void initializeShopServiceClients() {
+        System.out.println("INFO : Initializing ShopServiceClients...");
+        clients = ShopServiceClientFactory.createClientsFromXML(shopServiceClientsXmlSource);
+    }
+
+    private static void initializeProductsRefillInfo() {
+        //TODO initialize the information for all products when to refill etc
+    }
+
+    private static void run() {
+        //TODO implement run
+    }
+
+
+    private static void closeClients() {
+        System.out.println("INFO : Close ShopService clients..");
+        if (clients != null) {
+            for (ShopService.Client client : clients) {
+                client.getInputProtocol().getTransport().close();
+            }
         }
     }
 }
