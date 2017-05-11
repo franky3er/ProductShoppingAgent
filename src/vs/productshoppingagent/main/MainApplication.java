@@ -1,5 +1,8 @@
 package vs.productshoppingagent.main;
 
+import vs.product.ProductRefillInfo;
+import vs.product.ProductRefillInfoFactory;
+import vs.product.ProductShoppingAgent;
 import vs.shopservice.ShopService;
 import vs.shopservice.ShopServiceClientFactory;
 
@@ -21,9 +24,11 @@ public class MainApplication {
     private final static String PRODUCTSHOPPINGAGENT_SHOPSERVICE_PRODUCTSREFILLINFO_XMLSOURCE = "ProductShoppingAgent.ShopService.ProductsRefillInfo.XMLSource";
 
     private static String shopServiceClientsXmlSource;
-    private static String shopServiceProductsXMLSource;
+    private static String shopServiceProductsRefilInfoXMLSource;
 
     private static List<ShopService.Client> clients;
+    private static List<ProductRefillInfo> productsRefillInfos;
+    private static ProductShoppingAgent productShoppingAgent;
 
     public static void main(String[] args) {
         try {
@@ -42,25 +47,31 @@ public class MainApplication {
         Properties properties = new Properties();
         properties.load(new FileReader(PROJECT_CONFIG));
         shopServiceClientsXmlSource = properties.getProperty(PRODUCTSHOPPINGAGENT_SHOPSERVICE_CLIENTS_XMLSOURCE);
-        shopServiceProductsXMLSource = properties.getProperty(PRODUCTSHOPPINGAGENT_SHOPSERVICE_PRODUCTSREFILLINFO_XMLSOURCE);
+        shopServiceProductsRefilInfoXMLSource = properties.getProperty(PRODUCTSHOPPINGAGENT_SHOPSERVICE_PRODUCTSREFILLINFO_XMLSOURCE);
     }
 
     private static void initialize() {
         initializeShopServiceClients();
         initializeProductsRefillInfo();
+        initializeProductShoppingAgent();
     }
 
     private static void initializeShopServiceClients() {
-        System.out.println("INFO : Initializing ShopServiceClients...");
+        System.out.println("INFO : Initializing ShopServiceClients : " + shopServiceClientsXmlSource);
         clients = ShopServiceClientFactory.createClientsFromXML(shopServiceClientsXmlSource);
     }
 
     private static void initializeProductsRefillInfo() {
-        //TODO initialize the information for all products when to refill etc
+        System.out.println("INFO : Initializing ProductsRefillInfo : " + shopServiceProductsRefilInfoXMLSource);
+        productsRefillInfos = ProductRefillInfoFactory.createProductsRefillInfoFromXML(shopServiceProductsRefilInfoXMLSource);
+    }
+
+    private static void initializeProductShoppingAgent() {
+        productShoppingAgent = new ProductShoppingAgent(clients, productsRefillInfos);
     }
 
     private static void run() {
-        //TODO implement run
+        productShoppingAgent.purchase();
     }
 
 
