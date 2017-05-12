@@ -1,0 +1,14 @@
+{
+  "productShopServers": [
+    {
+      "name": "ALDI",
+      "ipAddr": "localhost",
+      "port": 31337
+    },
+    {
+      "name": "REWE",
+      "ipAddr": "localhost",
+      "port": 31338
+    }
+  ]
+}
