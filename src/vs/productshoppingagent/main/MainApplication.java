@@ -9,6 +9,9 @@ import vs.shopservice.ShopServiceClientFactory;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
 
@@ -22,13 +25,18 @@ public class MainApplication {
 
     private final static String PRODUCTSHOPPINGAGENT_SHOPSERVICE_CLIENTS_XMLSOURCE = "ProductShoppingAgent.ShopService.Clients.XMLSource";
     private final static String PRODUCTSHOPPINGAGENT_SHOPSERVICE_PRODUCTSREFILLINFO_XMLSOURCE = "ProductShoppingAgent.ShopService.ProductsRefillInfo.XMLSource";
+    private final static String PRODUCTSHOPPINGAGENT_PRODUCTDB_DRIVER = "ProductShoppingAgent.ProductDB.Driver";
+    private final static String PRODUCTSHOPPINGAGENT_PRODUCTDB_FILESOURCE = "ProductShoppingAgent.ProductDB.FileSource";
 
     private static String shopServiceClientsXmlSource;
     private static String shopServiceProductsRefilInfoXMLSource;
+    private static String productDBDriver;
+    private static String productDBFileSource;
 
     private static List<ShopService.Client> clients;
     private static List<ProductRefillInfo> productsRefillInfos;
     private static ProductShoppingAgent productShoppingAgent;
+    private static Connection connection;
 
     public static void main(String[] args) {
         try {
@@ -36,9 +44,14 @@ public class MainApplication {
             initialize();
             run();
         } catch (IOException e) {
+            System.err.println("ERROR : IOException");
+            e.printStackTrace();
+        } catch (SQLException e) {
+            System.err.println(String.format("ERROR : Connection to product DB failed : %s", productDBFileSource));
             e.printStackTrace();
         } finally {
             closeClients();
+            closeProductDBConnection();
         }
     }
 
@@ -48,11 +61,14 @@ public class MainApplication {
         properties.load(new FileReader(PROJECT_CONFIG));
         shopServiceClientsXmlSource = properties.getProperty(PRODUCTSHOPPINGAGENT_SHOPSERVICE_CLIENTS_XMLSOURCE);
         shopServiceProductsRefilInfoXMLSource = properties.getProperty(PRODUCTSHOPPINGAGENT_SHOPSERVICE_PRODUCTSREFILLINFO_XMLSOURCE);
+        productDBDriver = properties.getProperty(PRODUCTSHOPPINGAGENT_PRODUCTDB_DRIVER);
+        productDBFileSource = properties.getProperty(PRODUCTSHOPPINGAGENT_PRODUCTDB_FILESOURCE);
     }
 
-    private static void initialize() {
+    private static void initialize() throws SQLException {
         initializeShopServiceClients();
         initializeProductsRefillInfo();
+        initializeProductDB();
         initializeProductShoppingAgent();
     }
 
@@ -66,8 +82,12 @@ public class MainApplication {
         productsRefillInfos = ProductRefillInfoFactory.createProductsRefillInfoFromXML(shopServiceProductsRefilInfoXMLSource);
     }
 
+    private static void initializeProductDB() throws SQLException {
+        connection = DriverManager.getConnection("jdbc:sqlite:" + productDBFileSource);
+    }
+
     private static void initializeProductShoppingAgent() {
-        productShoppingAgent = new ProductShoppingAgent(clients, productsRefillInfos);
+        productShoppingAgent = new ProductShoppingAgent(connection, clients, productsRefillInfos);
     }
 
     private static void run() {
@@ -81,6 +101,15 @@ public class MainApplication {
             for (ShopService.Client client : clients) {
                 client.getInputProtocol().getTransport().close();
             }
+        }
+    }
+
+    private static void closeProductDBConnection() {
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            System.err.println("ERROR : Close product DB connection failed");
+            e.printStackTrace();
         }
     }
 }
