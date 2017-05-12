@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE products [
+        <!ELEMENT products (product*)>
+        <!ELEMENT product (name, unit, amountMin, amountDesired)>
+        <!ELEMENT name (#PCDATA)>
+        <!ELEMENT unit (#PCDATA)>
+        <!ELEMENT amountMin (#PCDATA)>
+        <!ELEMENT amountDesired (#PCDATA)>
+        ]>
+<products>
+    <product>
+        <name>Milk</name>
+        <unit>Liter</unit>
+        <amountMin>1.0</amountMin>
+        <amountDesired>5.0</amountDesired>
+    </product>
+    <product>
+        <name>Eggs</name>
+        <unit>Pieces</unit>
+        <amountMin>3</amountMin>
+        <amountDesired>6</amountDesired>
+    </product>
+    <product>
+        <name>Butter</name>
+        <unit>Gramm</unit>
+        <amountMin>250.0</amountMin>
+        <amountDesired>500.0</amountDesired>
+    </product>
+    <product>
+        <name>Beer</name>
+        <unit>Liter</unit>
+        <amountMin>10.0</amountMin>
+        <amountDesired>20.0</amountDesired>
+    </product>
+</products>
