@@ -1,7 +1,8 @@
 package vs.productshoppingagent.main;
 
-import vs.product.ProductRefillInfo;
-import vs.product.ProductRefillInfoFactory;
+import org.xml.sax.SAXException;
+import vs.product.refillinfo.ProductRefillInfo;
+import vs.product.refillinfo.ProductRefillInfoFactory;
 import vs.product.ProductShoppingAgent;
 import vs.shopservice.ShopService;
 import vs.shopservice.ShopServiceClientFactory;
@@ -49,6 +50,12 @@ public class MainApplication {
         } catch (SQLException e) {
             System.err.println(String.format("ERROR : Connection to product DB failed : %s", productDBFileSource));
             e.printStackTrace();
+        } catch (SAXException e) {
+            System.err.println("ERROR : Unable to parse xml");
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            System.err.println(String.format("ERROR : Driver not found: %s", productDBDriver));
+            e.printStackTrace();
         } finally {
             closeClients();
             closeProductDBConnection();
@@ -65,7 +72,7 @@ public class MainApplication {
         productDBFileSource = properties.getProperty(PRODUCTSHOPPINGAGENT_PRODUCTDB_FILESOURCE);
     }
 
-    private static void initialize() throws SQLException {
+    private static void initialize() throws SQLException, IOException, SAXException, ClassNotFoundException {
         initializeShopServiceClients();
         initializeProductsRefillInfo();
         initializeProductDB();
@@ -77,12 +84,13 @@ public class MainApplication {
         clients = ShopServiceClientFactory.createClientsFromXML(shopServiceClientsXmlSource);
     }
 
-    private static void initializeProductsRefillInfo() {
+    private static void initializeProductsRefillInfo() throws IOException, SAXException {
         System.out.println("INFO : Initializing ProductsRefillInfo : " + shopServiceProductsRefilInfoXMLSource);
         productsRefillInfos = ProductRefillInfoFactory.createProductsRefillInfoFromXML(shopServiceProductsRefilInfoXMLSource);
     }
 
-    private static void initializeProductDB() throws SQLException {
+    private static void initializeProductDB() throws SQLException, ClassNotFoundException {
+        Class.forName(productDBDriver);
         connection = DriverManager.getConnection("jdbc:sqlite:" + productDBFileSource);
     }
 

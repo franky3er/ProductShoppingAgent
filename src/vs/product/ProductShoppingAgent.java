@@ -1,5 +1,6 @@
 package vs.product;
 
+import vs.product.refillinfo.ProductRefillInfo;
 import vs.shopservice.ShopService;
 
 import java.sql.Connection;
