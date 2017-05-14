@@ -4,6 +4,8 @@ import org.xml.sax.SAXException;
 import vs.product.refillinfo.ProductRefillInfo;
 import vs.product.refillinfo.ProductRefillInfoFactory;
 import vs.product.ProductShoppingAgent;
+import vs.product.sensor.*;
+import vs.product.sensor.scanoption.xmlscann.XMLScan;
 import vs.shopservice.ShopService;
 import vs.shopservice.ShopServiceClientFactory;
 
@@ -13,6 +15,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -26,12 +29,15 @@ public class MainApplication {
 
     private final static String PRODUCTSHOPPINGAGENT_SHOPSERVICE_CLIENTS_XMLSOURCE = "ProductShoppingAgent.ShopService.Clients.XMLSource";
     private final static String PRODUCTSHOPPINGAGENT_SHOPSERVICE_PRODUCTSREFILLINFO_XMLSOURCE = "ProductShoppingAgent.ShopService.ProductsRefillInfo.XMLSource";
+    private final static String PRODUCTSHOPPINGAGENT_PRODUCTS_XMLSOURCE = "ProductShoppingAgent.Products.XMLSource";
 
     private static String shopServiceClientsXmlSource;
     private static String shopServiceProductsRefilInfoXMLSource;
+    private static String productsXMLSource;
 
     private static List<ShopService.Client> clients;
     private static List<ProductRefillInfo> productsRefillInfos;
+    private static List<Sensor> sensors;
     private static ProductShoppingAgent productShoppingAgent;
 
     public static void main(String[] args) {
@@ -56,11 +62,13 @@ public class MainApplication {
         properties.load(new FileReader(PROJECT_CONFIG));
         shopServiceClientsXmlSource = properties.getProperty(PRODUCTSHOPPINGAGENT_SHOPSERVICE_CLIENTS_XMLSOURCE);
         shopServiceProductsRefilInfoXMLSource = properties.getProperty(PRODUCTSHOPPINGAGENT_SHOPSERVICE_PRODUCTSREFILLINFO_XMLSOURCE);
-     }
+        productsXMLSource = properties.getProperty(PRODUCTSHOPPINGAGENT_PRODUCTS_XMLSOURCE);
+    }
 
     private static void initialize() throws IOException, SAXException {
         initializeShopServiceClients();
         initializeProductsRefillInfo();
+        initializeProductSensors();
         initializeProductShoppingAgent();
     }
 
@@ -74,8 +82,17 @@ public class MainApplication {
         productsRefillInfos = ProductRefillInfoFactory.createProductsRefillInfoFromXML(shopServiceProductsRefilInfoXMLSource);
     }
 
+    private static void initializeProductSensors() {
+        System.out.println("INFO : Initializing Product Sensors");
+        sensors = new ArrayList<>();
+        sensors.add(new MilkSensor(new XMLScan(productsXMLSource)));
+        sensors.add(new EggsSensor(new XMLScan(productsXMLSource)));
+        sensors.add(new ButterSensor(new XMLScan(productsXMLSource)));
+        sensors.add(new BeerSensor(new XMLScan(productsXMLSource)));
+    }
+
     private static void initializeProductShoppingAgent() {
-        productShoppingAgent = new ProductShoppingAgent(clients, productsRefillInfos);
+        productShoppingAgent = new ProductShoppingAgent(sensors, clients, productsRefillInfos);
     }
 
     private static void run() {
