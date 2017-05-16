@@ -1,4 +1,4 @@
-package vs.product.refillinfo;
+package vs.products.refillinfo;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;

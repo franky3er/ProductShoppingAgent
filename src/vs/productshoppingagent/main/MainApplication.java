@@ -1,11 +1,12 @@
 package vs.productshoppingagent.main;
 
+import org.apache.thrift.TException;
 import org.apache.thrift.transport.TTransportException;
 import org.json.simple.parser.ParseException;
 import org.xml.sax.SAXException;
-import vs.product.refillinfo.ProductRefillInfo;
-import vs.product.refillinfo.ProductRefillInfoFactory;
-import vs.product.ProductShoppingAgent;
+import vs.products.refillinfo.ProductRefillInfo;
+import vs.products.refillinfo.ProductRefillInfoFactory;
+import vs.products.ProductShoppingAgent;
 import vs.shopservice.ShopService;
 import vs.shopservice.ShopServiceClientFactory;
 
@@ -107,7 +108,7 @@ public class MainApplication {
     }
 
     private static void run() {
-        productShoppingAgent.purchase();
+        productShoppingAgent.refill();
     }
 
 
@@ -122,7 +123,7 @@ public class MainApplication {
 
     private static void closeProductDBConnection() {
         try {
-            if(connection != null) {
+            if (connection != null) {
                 connection.close();
             }
         } catch (SQLException e) {
