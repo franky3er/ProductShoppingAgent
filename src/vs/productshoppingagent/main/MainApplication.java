@@ -122,7 +122,9 @@ public class MainApplication {
 
     private static void closeProductDBConnection() {
         try {
-            connection.close();
+            if(connection != null) {
+                connection.close();
+            }
         } catch (SQLException e) {
             System.err.println("ERROR : Close product DB connection failed");
             e.printStackTrace();
