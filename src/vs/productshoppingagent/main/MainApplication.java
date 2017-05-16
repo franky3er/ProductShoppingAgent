@@ -1,5 +1,7 @@
 package vs.productshoppingagent.main;
 
+import org.apache.thrift.transport.TTransportException;
+import org.json.simple.parser.ParseException;
 import org.xml.sax.SAXException;
 import vs.product.refillinfo.ProductRefillInfo;
 import vs.product.refillinfo.ProductRefillInfoFactory;
@@ -51,10 +53,16 @@ public class MainApplication {
             System.err.println(String.format("ERROR : Connection to product DB failed : %s", productDBFileSource));
             e.printStackTrace();
         } catch (SAXException e) {
-            System.err.println("ERROR : Unable to parse xml");
+            System.err.println(String.format("ERROR : Unable to parse xml file", shopServiceProductsRefilInfoXMLSource));
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
             System.err.println(String.format("ERROR : Driver not found: %s", productDBDriver));
+            e.printStackTrace();
+        } catch (TTransportException e) {
+            System.err.println("ERROR : Connection to shop failed");
+            e.printStackTrace();
+        } catch (ParseException e) {
+            System.err.println(String.format("ERROR : Parsing JSON file %s failed", shopServiceServersJsonSource));
             e.printStackTrace();
         } finally {
             closeClients();
@@ -72,14 +80,14 @@ public class MainApplication {
         productDBFileSource = properties.getProperty(PRODUCTSHOPPINGAGENT_PRODUCTDB_FILESOURCE);
     }
 
-    private static void initialize() throws SQLException, IOException, SAXException, ClassNotFoundException {
+    private static void initialize() throws SQLException, IOException, SAXException, ClassNotFoundException, ParseException, TTransportException {
         initializeShopServiceClients();
         initializeProductsRefillInfo();
         initializeProductDB();
         initializeProductShoppingAgent();
     }
 
-    private static void initializeShopServiceClients() {
+    private static void initializeShopServiceClients() throws ParseException, IOException, TTransportException {
         System.out.println("INFO : Initializing ShopServiceClients : " + shopServiceServersJsonSource);
         clients = ShopServiceClientFactory.createClientsFromJSON(shopServiceServersJsonSource);
     }
