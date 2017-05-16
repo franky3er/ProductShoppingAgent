@@ -10,6 +10,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,31 +28,30 @@ public class ShopServiceClientFactory {
      * @param jsonSource
      * @return List<ShopService.Client>
      */
-    public static List<ShopService.Client> createClientsFromJSON(String jsonSource) {
+    public static List<ShopService.Client> createClientsFromJSON(String jsonSource) throws IOException, ParseException, TTransportException {
         List<ShopService.Client> clients = new ArrayList<>();
-        JSONParser jsonParser = new JSONParser();
-        try {
-            JSONObject jsonObject = (JSONObject) jsonParser.parse(new FileReader(jsonSource));
-            JSONArray jsonArray = (JSONArray) jsonObject.get("productShopServers");
-            Iterator<JSONObject> iter = jsonArray.iterator();
-            while (iter.hasNext()) {
-                JSONObject server = iter.next();
-                //String name = (String) server.get("name");
-                TTransport transport = new TSocket((String) server.get("ipAddr"), (int)((long)((Long) server.get("port"))));
-                transport.open();
-                TProtocol protocol = new TBinaryProtocol(transport);
-                clients.add(new ShopService.Client(protocol));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        } catch (TTransportException e) {
-            e.printStackTrace();
-        } catch (ClassCastException e) {
-            System.err.println("ERROR : Error in ProductShopServers.json");
-            e.printStackTrace();
+        Iterator<JSONObject> iter = getJSONObjectIterator(jsonSource);
+        while (iter.hasNext()) {
+            JSONObject server = iter.next();
+            clients.add(createShopServiceServer(server));
         }
         return clients;
+    }
+
+    private static Iterator<JSONObject> getJSONObjectIterator(String jsonSource) throws IOException, ParseException {
+        JSONParser jsonParser = new JSONParser();
+        JSONObject jsonObject = (JSONObject) jsonParser.parse(new FileReader(jsonSource));
+        JSONArray jsonArray = (JSONArray) jsonObject.get("productShopServers");
+        return jsonArray.iterator();
+    }
+
+    private static ShopService.Client createShopServiceServer(JSONObject server) throws TTransportException {
+        return new ShopService.Client(createShopServiceProtocol(server));
+    }
+
+    private static TProtocol createShopServiceProtocol(JSONObject server) throws TTransportException {
+        TTransport transport = new TSocket((String) server.get("ipAddr"), (int) ((long) ((Long) server.get("port"))));
+        transport.open();
+        return new TBinaryProtocol(transport);
     }
 }
