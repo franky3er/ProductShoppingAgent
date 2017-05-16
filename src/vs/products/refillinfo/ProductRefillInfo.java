@@ -1,4 +1,4 @@
-package vs.product.refillinfo;
+package vs.products.refillinfo;
 
 /**
  * Pojo for all the information needed to refill the fridge
