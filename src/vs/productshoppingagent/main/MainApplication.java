@@ -1,5 +1,6 @@
 package vs.productshoppingagent.main;
 
+import org.apache.thrift.TException;
 import org.apache.thrift.transport.TTransportException;
 import org.json.simple.parser.ParseException;
 import org.xml.sax.SAXException;
@@ -122,7 +123,7 @@ public class MainApplication {
 
     private static void closeProductDBConnection() {
         try {
-            if(connection != null) {
+            if (connection != null) {
                 connection.close();
             }
         } catch (SQLException e) {
