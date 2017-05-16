@@ -24,12 +24,12 @@ public class MainApplication {
     private final static String PROJECT_CONFIG = System.getProperty("user.dir") + File.separator +
             "config" + File.separator + PROJECT_NAME + ".properties";
 
-    private final static String PRODUCTSHOPPINGAGENT_SHOPSERVICE_CLIENTS_XMLSOURCE = "ProductShoppingAgent.ShopService.Clients.XMLSource";
+    private final static String PRODUCTSHOPPINGAGENT_SHOPSERVICE_SERVERS_JSONSOURCE = "ProductShoppingAgent.ShopService.Servers.JSONSource";
     private final static String PRODUCTSHOPPINGAGENT_SHOPSERVICE_PRODUCTSREFILLINFO_XMLSOURCE = "ProductShoppingAgent.ShopService.ProductsRefillInfo.XMLSource";
     private final static String PRODUCTSHOPPINGAGENT_PRODUCTDB_DRIVER = "ProductShoppingAgent.ProductDB.Driver";
     private final static String PRODUCTSHOPPINGAGENT_PRODUCTDB_FILESOURCE = "ProductShoppingAgent.ProductDB.FileSource";
 
-    private static String shopServiceClientsXmlSource;
+    private static String shopServiceServersJsonSource;
     private static String shopServiceProductsRefilInfoXMLSource;
     private static String productDBDriver;
     private static String productDBFileSource;
@@ -66,7 +66,7 @@ public class MainApplication {
         System.out.println("INFO : Loading config...");
         Properties properties = new Properties();
         properties.load(new FileReader(PROJECT_CONFIG));
-        shopServiceClientsXmlSource = properties.getProperty(PRODUCTSHOPPINGAGENT_SHOPSERVICE_CLIENTS_XMLSOURCE);
+        shopServiceServersJsonSource = properties.getProperty(PRODUCTSHOPPINGAGENT_SHOPSERVICE_SERVERS_JSONSOURCE);
         shopServiceProductsRefilInfoXMLSource = properties.getProperty(PRODUCTSHOPPINGAGENT_SHOPSERVICE_PRODUCTSREFILLINFO_XMLSOURCE);
         productDBDriver = properties.getProperty(PRODUCTSHOPPINGAGENT_PRODUCTDB_DRIVER);
         productDBFileSource = properties.getProperty(PRODUCTSHOPPINGAGENT_PRODUCTDB_FILESOURCE);
@@ -80,8 +80,8 @@ public class MainApplication {
     }
 
     private static void initializeShopServiceClients() {
-        System.out.println("INFO : Initializing ShopServiceClients : " + shopServiceClientsXmlSource);
-        clients = ShopServiceClientFactory.createClientsFromXML(shopServiceClientsXmlSource);
+        System.out.println("INFO : Initializing ShopServiceClients : " + shopServiceServersJsonSource);
+        clients = ShopServiceClientFactory.createClientsFromJSON(shopServiceServersJsonSource);
     }
 
     private static void initializeProductsRefillInfo() throws IOException, SAXException {
