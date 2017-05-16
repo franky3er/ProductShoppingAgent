@@ -34,7 +34,7 @@ public class ProductShoppingAgent {
     private void refill(ProductRefillInfo productRefillInfo) {
         System.out.println(
                 String.format(
-                        "Refill product: %s",
+                        "INFO : Refill product: %s",
                         productRefillInfo.getProductName()
                 )
         );
@@ -56,12 +56,6 @@ public class ProductShoppingAgent {
     }
 
     private void refillIfNeeded(ScannedProduct product, ProductRefillInfo productRefillInfo) {
-        System.out.println(
-                String.format(
-                        "INFO : Refill product: %s if needed",
-                        product.getName()
-                )
-        );
         String refillAmount = calculateRefillAmount(product, productRefillInfo);
         if (refillAmount == null) {
             System.out.println(
@@ -85,26 +79,34 @@ public class ProductShoppingAgent {
                         productRefillInfo.getAmountMinimum(), productRefillInfo.getAmountDesired()
                 )
         );
+        String refillAmount;
         if (product.getAmmount().contains(".")) {
-            return calculateRefillAmount(Double.parseDouble(product.getAmmount()),
+            refillAmount = calculateRefillAmount(Double.parseDouble(product.getAmmount()),
                     Double.parseDouble(productRefillInfo.getAmountMinimum()),
                     Double.parseDouble(productRefillInfo.getAmountDesired()));
         } else {
-            return calculateRefillAmount(Integer.parseInt(product.getAmmount()),
+            refillAmount = calculateRefillAmount(Integer.parseInt(product.getAmmount()),
                     Integer.parseInt(productRefillInfo.getAmountMinimum()),
                     Integer.parseInt(productRefillInfo.getAmountDesired()));
         }
+        System.out.println(
+                String.format(
+                        "INFO : Calculated refill amount: %s",
+                        refillAmount
+                )
+        );
+        return refillAmount;
     }
 
     private String calculateRefillAmount(double amountProduct, double amountMin, double amountDesired) {
-        if (amountDesired > amountMin) {
+        if (amountProduct >= amountMin) {
             return null;
         }
         return Double.toString(amountDesired - amountProduct);
     }
 
     private String calculateRefillAmount(int amountProduct, int amountMin, int amountDesired) {
-        if (amountDesired > amountMin) {
+        if (amountProduct >= amountMin) {
             return null;
         }
         return Integer.toString(amountDesired - amountProduct);
@@ -145,7 +147,19 @@ public class ProductShoppingAgent {
         );
         try {
             if (shop != null) {
-                shop.buyProduct(product.getName(), amount);
+                if (shop.buyProduct(product.getName(), amount)) {
+                    System.out.println(String.format(
+                            "INFO : Buy product: %s, amount: %s Successful",
+                            product.getName(), amount
+                            )
+                    );
+                } else {
+                    System.err.println(String.format(
+                            "INFO : Buy product: %s, amount: %s Failed",
+                            product.getName(), amount
+                            )
+                    );
+                }
             } else {
                 System.err.println(String.format("WARNING : No shop found for product: %s, amount: %s",
                         product.getName(), amount));
