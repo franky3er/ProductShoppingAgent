@@ -4,20 +4,31 @@ package vs.shopservice; /**
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
  *  @generated
  */
-
-import org.apache.thrift.EncodingUtils;
-import org.apache.thrift.TException;
-import org.apache.thrift.async.AsyncMethodCallback;
-import org.apache.thrift.protocol.TTupleProtocol;
 import org.apache.thrift.scheme.IScheme;
 import org.apache.thrift.scheme.SchemeFactory;
 import org.apache.thrift.scheme.StandardScheme;
+
 import org.apache.thrift.scheme.TupleScheme;
+import org.apache.thrift.protocol.TTupleProtocol;
+import org.apache.thrift.protocol.TProtocolException;
+import org.apache.thrift.EncodingUtils;
+import org.apache.thrift.TException;
+import org.apache.thrift.async.AsyncMethodCallback;
 import org.apache.thrift.server.AbstractNonblockingServer.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.EnumMap;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.EnumSet;
+import java.util.Collections;
+import java.util.BitSet;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 public class ShopService {
 
@@ -27,7 +38,7 @@ public class ShopService {
 
     public long fetchProductPrice(String productName, String productAmount) throws TException;
 
-    public boolean buyProduct(String productName, String productAmount) throws TException;
+    public boolean buyProduct(String productName, String productAmount, String deliveryAddress) throws TException;
 
   }
 
@@ -37,7 +48,7 @@ public class ShopService {
 
     public void fetchProductPrice(String productName, String productAmount, AsyncMethodCallback resultHandler) throws TException;
 
-    public void buyProduct(String productName, String productAmount, AsyncMethodCallback resultHandler) throws TException;
+    public void buyProduct(String productName, String productAmount, String deliveryAddress, AsyncMethodCallback resultHandler) throws TException;
 
   }
 
@@ -104,17 +115,18 @@ public class ShopService {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "fetchProductPrice failed: unknown result");
     }
 
-    public boolean buyProduct(String productName, String productAmount) throws TException
+    public boolean buyProduct(String productName, String productAmount, String deliveryAddress) throws TException
     {
-      send_buyProduct(productName, productAmount);
+      send_buyProduct(productName, productAmount, deliveryAddress);
       return recv_buyProduct();
     }
 
-    public void send_buyProduct(String productName, String productAmount) throws TException
+    public void send_buyProduct(String productName, String productAmount, String deliveryAddress) throws TException
     {
       buyProduct_args args = new buyProduct_args();
       args.setProductName(productName);
       args.setProductAmount(productAmount);
+      args.setDeliveryAddress(deliveryAddress);
       sendBase("buyProduct", args);
     }
 
@@ -210,9 +222,9 @@ public class ShopService {
       }
     }
 
-    public void buyProduct(String productName, String productAmount, AsyncMethodCallback resultHandler) throws TException {
+    public void buyProduct(String productName, String productAmount, String deliveryAddress, AsyncMethodCallback resultHandler) throws TException {
       checkReady();
-      buyProduct_call method_call = new buyProduct_call(productName, productAmount, resultHandler, this, ___protocolFactory, ___transport);
+      buyProduct_call method_call = new buyProduct_call(productName, productAmount, deliveryAddress, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
@@ -220,10 +232,12 @@ public class ShopService {
     public static class buyProduct_call extends org.apache.thrift.async.TAsyncMethodCall {
       private String productName;
       private String productAmount;
-      public buyProduct_call(String productName, String productAmount, AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws TException {
+      private String deliveryAddress;
+      public buyProduct_call(String productName, String productAmount, String deliveryAddress, AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.productName = productName;
         this.productAmount = productAmount;
+        this.deliveryAddress = deliveryAddress;
       }
 
       public void write_args(org.apache.thrift.protocol.TProtocol prot) throws TException {
@@ -231,6 +245,7 @@ public class ShopService {
         buyProduct_args args = new buyProduct_args();
         args.setProductName(productName);
         args.setProductAmount(productAmount);
+        args.setDeliveryAddress(deliveryAddress);
         args.write(prot);
         prot.writeMessageEnd();
       }
@@ -320,7 +335,7 @@ public class ShopService {
 
       public buyProduct_result getResult(I iface, buyProduct_args args) throws TException {
         buyProduct_result result = new buyProduct_result();
-        result.success = iface.buyProduct(args.productName, args.productAmount);
+        result.success = iface.buyProduct(args.productName, args.productAmount, args.deliveryAddress);
         result.setSuccessIsSet(true);
         return result;
       }
@@ -495,7 +510,7 @@ public class ShopService {
       }
 
       public void start(I iface, buyProduct_args args, AsyncMethodCallback<Boolean> resultHandler) throws TException {
-        iface.buyProduct(args.productName, args.productAmount,resultHandler);
+        iface.buyProduct(args.productName, args.productAmount, args.deliveryAddress,resultHandler);
       }
     }
 
@@ -1806,6 +1821,7 @@ public class ShopService {
 
     private static final org.apache.thrift.protocol.TField PRODUCT_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("productName", org.apache.thrift.protocol.TType.STRING, (short)1);
     private static final org.apache.thrift.protocol.TField PRODUCT_AMOUNT_FIELD_DESC = new org.apache.thrift.protocol.TField("productAmount", org.apache.thrift.protocol.TType.STRING, (short)2);
+    private static final org.apache.thrift.protocol.TField DELIVERY_ADDRESS_FIELD_DESC = new org.apache.thrift.protocol.TField("deliveryAddress", org.apache.thrift.protocol.TType.STRING, (short)3);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -1815,11 +1831,13 @@ public class ShopService {
 
     public String productName; // required
     public String productAmount; // required
+    public String deliveryAddress; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       PRODUCT_NAME((short)1, "productName"),
-      PRODUCT_AMOUNT((short)2, "productAmount");
+      PRODUCT_AMOUNT((short)2, "productAmount"),
+      DELIVERY_ADDRESS((short)3, "deliveryAddress");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -1838,6 +1856,8 @@ public class ShopService {
             return PRODUCT_NAME;
           case 2: // PRODUCT_AMOUNT
             return PRODUCT_AMOUNT;
+          case 3: // DELIVERY_ADDRESS
+            return DELIVERY_ADDRESS;
           default:
             return null;
         }
@@ -1885,6 +1905,8 @@ public class ShopService {
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       tmpMap.put(_Fields.PRODUCT_AMOUNT, new org.apache.thrift.meta_data.FieldMetaData("productAmount", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      tmpMap.put(_Fields.DELIVERY_ADDRESS, new org.apache.thrift.meta_data.FieldMetaData("deliveryAddress", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(buyProduct_args.class, metaDataMap);
     }
@@ -1894,11 +1916,13 @@ public class ShopService {
 
     public buyProduct_args(
       String productName,
-      String productAmount)
+      String productAmount,
+      String deliveryAddress)
     {
       this();
       this.productName = productName;
       this.productAmount = productAmount;
+      this.deliveryAddress = deliveryAddress;
     }
 
     /**
@@ -1911,6 +1935,9 @@ public class ShopService {
       if (other.isSetProductAmount()) {
         this.productAmount = other.productAmount;
       }
+      if (other.isSetDeliveryAddress()) {
+        this.deliveryAddress = other.deliveryAddress;
+      }
     }
 
     public buyProduct_args deepCopy() {
@@ -1921,6 +1948,7 @@ public class ShopService {
     public void clear() {
       this.productName = null;
       this.productAmount = null;
+      this.deliveryAddress = null;
     }
 
     public String getProductName() {
@@ -1971,6 +1999,30 @@ public class ShopService {
       }
     }
 
+    public String getDeliveryAddress() {
+      return this.deliveryAddress;
+    }
+
+    public buyProduct_args setDeliveryAddress(String deliveryAddress) {
+      this.deliveryAddress = deliveryAddress;
+      return this;
+    }
+
+    public void unsetDeliveryAddress() {
+      this.deliveryAddress = null;
+    }
+
+    /** Returns true if field deliveryAddress is set (has been assigned a value) and false otherwise */
+    public boolean isSetDeliveryAddress() {
+      return this.deliveryAddress != null;
+    }
+
+    public void setDeliveryAddressIsSet(boolean value) {
+      if (!value) {
+        this.deliveryAddress = null;
+      }
+    }
+
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case PRODUCT_NAME:
@@ -1989,6 +2041,14 @@ public class ShopService {
         }
         break;
 
+      case DELIVERY_ADDRESS:
+        if (value == null) {
+          unsetDeliveryAddress();
+        } else {
+          setDeliveryAddress((String)value);
+        }
+        break;
+
       }
     }
 
@@ -1999,6 +2059,9 @@ public class ShopService {
 
       case PRODUCT_AMOUNT:
         return getProductAmount();
+
+      case DELIVERY_ADDRESS:
+        return getDeliveryAddress();
 
       }
       throw new IllegalStateException();
@@ -2015,6 +2078,8 @@ public class ShopService {
         return isSetProductName();
       case PRODUCT_AMOUNT:
         return isSetProductAmount();
+      case DELIVERY_ADDRESS:
+        return isSetDeliveryAddress();
       }
       throw new IllegalStateException();
     }
@@ -2047,6 +2112,15 @@ public class ShopService {
         if (!(this_present_productAmount && that_present_productAmount))
           return false;
         if (!this.productAmount.equals(that.productAmount))
+          return false;
+      }
+
+      boolean this_present_deliveryAddress = true && this.isSetDeliveryAddress();
+      boolean that_present_deliveryAddress = true && that.isSetDeliveryAddress();
+      if (this_present_deliveryAddress || that_present_deliveryAddress) {
+        if (!(this_present_deliveryAddress && that_present_deliveryAddress))
+          return false;
+        if (!this.deliveryAddress.equals(that.deliveryAddress))
           return false;
       }
 
@@ -2086,6 +2160,16 @@ public class ShopService {
           return lastComparison;
         }
       }
+      lastComparison = Boolean.valueOf(isSetDeliveryAddress()).compareTo(other.isSetDeliveryAddress());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetDeliveryAddress()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.deliveryAddress, other.deliveryAddress);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
       return 0;
     }
 
@@ -2119,6 +2203,14 @@ public class ShopService {
         sb.append("null");
       } else {
         sb.append(this.productAmount);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("deliveryAddress:");
+      if (this.deliveryAddress == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.deliveryAddress);
       }
       first = false;
       sb.append(")");
@@ -2180,6 +2272,14 @@ public class ShopService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
+            case 3: // DELIVERY_ADDRESS
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.deliveryAddress = iprot.readString();
+                struct.setDeliveryAddressIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
             default:
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
           }
@@ -2203,6 +2303,11 @@ public class ShopService {
         if (struct.productAmount != null) {
           oprot.writeFieldBegin(PRODUCT_AMOUNT_FIELD_DESC);
           oprot.writeString(struct.productAmount);
+          oprot.writeFieldEnd();
+        }
+        if (struct.deliveryAddress != null) {
+          oprot.writeFieldBegin(DELIVERY_ADDRESS_FIELD_DESC);
+          oprot.writeString(struct.deliveryAddress);
           oprot.writeFieldEnd();
         }
         oprot.writeFieldStop();
@@ -2229,19 +2334,25 @@ public class ShopService {
         if (struct.isSetProductAmount()) {
           optionals.set(1);
         }
-        oprot.writeBitSet(optionals, 2);
+        if (struct.isSetDeliveryAddress()) {
+          optionals.set(2);
+        }
+        oprot.writeBitSet(optionals, 3);
         if (struct.isSetProductName()) {
           oprot.writeString(struct.productName);
         }
         if (struct.isSetProductAmount()) {
           oprot.writeString(struct.productAmount);
         }
+        if (struct.isSetDeliveryAddress()) {
+          oprot.writeString(struct.deliveryAddress);
+        }
       }
 
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, buyProduct_args struct) throws TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(2);
+        BitSet incoming = iprot.readBitSet(3);
         if (incoming.get(0)) {
           struct.productName = iprot.readString();
           struct.setProductNameIsSet(true);
@@ -2249,6 +2360,10 @@ public class ShopService {
         if (incoming.get(1)) {
           struct.productAmount = iprot.readString();
           struct.setProductAmountIsSet(true);
+        }
+        if (incoming.get(2)) {
+          struct.deliveryAddress = iprot.readString();
+          struct.setDeliveryAddressIsSet(true);
         }
       }
     }
