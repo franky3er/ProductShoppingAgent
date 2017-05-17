@@ -17,11 +17,14 @@ public class ProductShoppingAgent {
     private Connection connection;
     private List<ShopService.Client> shops;
     private List<ProductRefillInfo> productsRefillInfo;
+    private String deliveryAddress;
 
-    public ProductShoppingAgent(Connection connection, List<ShopService.Client> clients, List<ProductRefillInfo> productsRefillInfo) {
+    public ProductShoppingAgent(Connection connection, List<ShopService.Client> clients,
+                                List<ProductRefillInfo> productsRefillInfo, String deliveryAddress) {
         this.connection = connection;
         this.shops = clients;
         this.productsRefillInfo = productsRefillInfo;
+        this.deliveryAddress = deliveryAddress;
     }
 
     public void refill() {
@@ -147,7 +150,7 @@ public class ProductShoppingAgent {
         );
         try {
             if (shop != null) {
-                if (shop.buyProduct(product.getName(), amount)) {
+                if (shop.buyProduct(product.getName(), amount, deliveryAddress)) {
                     System.out.println(String.format(
                             "INFO : Buy product: %s, amount: %s Successful",
                             product.getName(), amount

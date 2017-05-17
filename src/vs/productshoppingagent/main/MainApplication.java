@@ -31,11 +31,13 @@ public class MainApplication {
     private final static String PRODUCTSHOPPINGAGENT_SHOPSERVICE_PRODUCTSREFILLINFO_XMLSOURCE = "ProductShoppingAgent.ShopService.ProductsRefillInfo.XMLSource";
     private final static String PRODUCTSHOPPINGAGENT_PRODUCTDB_DRIVER = "ProductShoppingAgent.ProductDB.Driver";
     private final static String PRODUCTSHOPPINGAGENT_PRODUCTDB_FILESOURCE = "ProductShoppingAgent.ProductDB.FileSource";
+    private final static String PRODUCTSHOPPINGAGENT_DELIVERY_ADDRESS = "ProductShoppingAgent.Delivery.Address";
 
     private static String shopServiceServersJsonSource;
     private static String shopServiceProductsRefilInfoXMLSource;
     private static String productDBDriver;
     private static String productDBFileSource;
+    private static String deliveryAddress;
 
     private static List<ShopService.Client> clients;
     private static List<ProductRefillInfo> productsRefillInfos;
@@ -79,6 +81,7 @@ public class MainApplication {
         shopServiceProductsRefilInfoXMLSource = properties.getProperty(PRODUCTSHOPPINGAGENT_SHOPSERVICE_PRODUCTSREFILLINFO_XMLSOURCE);
         productDBDriver = properties.getProperty(PRODUCTSHOPPINGAGENT_PRODUCTDB_DRIVER);
         productDBFileSource = properties.getProperty(PRODUCTSHOPPINGAGENT_PRODUCTDB_FILESOURCE);
+        deliveryAddress = properties.getProperty(PRODUCTSHOPPINGAGENT_DELIVERY_ADDRESS);
     }
 
     private static void initialize() throws SQLException, IOException, SAXException, ClassNotFoundException, ParseException, TTransportException {
@@ -104,7 +107,8 @@ public class MainApplication {
     }
 
     private static void initializeProductShoppingAgent() {
-        productShoppingAgent = new ProductShoppingAgent(connection, clients, productsRefillInfos);
+        productShoppingAgent = new ProductShoppingAgent(connection, clients,
+                productsRefillInfos, deliveryAddress);
     }
 
     private static void run() {
