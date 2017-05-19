@@ -32,6 +32,18 @@ public class ProductDatabaseHandler implements ProductIOHandler {
     public final static String SCANNEDPRODUCT_TABLE_AMMOUNT = "ammount";
     public final static String SCANNEDPRODUCT_TABLE_AMMOUNT_COMPLETE = SCANNEDPRODUCT_TABLE + "." + SCANNEDPRODUCT_TABLE_AMMOUNT;
 
+    public final static String BILL_TABLE = "Bill";
+    public final static String BILL_TABLE_PK_TIMESTAMP = "timestamp";
+    public final static String BILL_TABLE_PK_TIMESTAMP_COMPLETE = BILL_TABLE + "." + BILL_TABLE_PK_TIMESTAMP;
+    public final static String BILL_TABLE_SHOPNAME = "shopName";
+    public final static String BILL_TABLE_SHOPNAME_COMPLETE = BILL_TABLE + "." + BILL_TABLE_SHOPNAME;
+    public final static String BILL_TABLE_PK_PRODUCTNAME = "productName";
+    public final static String BILL_TABLE_PK_PRODUCTNAME_COMPLETE = BILL_TABLE + "." + BILL_TABLE_PK_PRODUCTNAME;
+    public final static String BILL_TABLE_AMOUNT = "amount";
+    public final static String BILL_TABLE_AMOUNT_COMPLETE = BILL_TABLE + "." + BILL_TABLE_AMOUNT;
+    public final static String BILL_TABLE_PRICE = "price";
+    public final static String BILL_TABLE_PRICE_COMPLETE = BILL_TABLE + "." + BILL_TABLE_PRICE;
+
     protected Connection connection = null;
 
     public ProductDatabaseHandler(Connection connection) {
@@ -99,7 +111,7 @@ public class ProductDatabaseHandler implements ProductIOHandler {
         String sql = String.format("CREATE TABLE IF NOT EXISTS %s (" +
                         "%s VARCHAR(100), " +
                         "%s VARCHAR(100), " +
-                        "PRIMARY KEY (%s)); ", PRODUCT_TABLE,
+                        "PRIMARY KEY (%s));", PRODUCT_TABLE,
                 PRODUCT_TABLE_PK_PRODUCTNAME,
                 PRODUCT_TABLE_PRODUCTUNIT,
                 PRODUCT_TABLE_PK_PRODUCTNAME);
@@ -114,6 +126,21 @@ public class ProductDatabaseHandler implements ProductIOHandler {
                 SCANNEDPRODUCT_TABLE_AMMOUNT,
                 SCANNEDPRODUCT_TABLE_PK_FK_PRODUCTNAME, SCANNEDPRODUCT_TABLE_PK_TIMESTAMP,
                 SCANNEDPRODUCT_TABLE_PK_FK_PRODUCTNAME, PRODUCT_TABLE, PRODUCT_TABLE_PK_PRODUCTNAME);
+        sql += String.format("CREATE TABLE IF NOT EXISTS %s (" +
+                        "%s INTEGER, " +
+                        "%s VARCHAR(100), " +
+                        "%s VARCHAR(100), " +
+                        "%s VARCHAR(100), " +
+                        "%s INTEGER, " +
+                        "FOREIGN KEY (%s) REFERENCES %s(%s) " +
+                        "PRIMARY KEY (%s, %s));", BILL_TABLE,
+                BILL_TABLE_PK_TIMESTAMP,
+                BILL_TABLE_SHOPNAME,
+                BILL_TABLE_PK_PRODUCTNAME,
+                BILL_TABLE_AMOUNT,
+                BILL_TABLE_PRICE,
+                BILL_TABLE_PK_PRODUCTNAME, PRODUCT_TABLE, PRODUCT_TABLE_PK_PRODUCTNAME,
+                BILL_TABLE_PK_TIMESTAMP, BILL_TABLE_PK_PRODUCTNAME);
 
         try {
             executeStatements(sql);
