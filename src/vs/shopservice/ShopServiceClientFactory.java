@@ -13,8 +13,9 @@ import org.json.simple.parser.ParseException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
 
 /**
  * Factory to create clients.
@@ -27,12 +28,12 @@ public class ShopServiceClientFactory {
      * @param jsonSource
      * @return List<ShopService.Client>
      */
-    public static List<ShopService.Client> createClientsFromJSON(String jsonSource) throws IOException, ParseException, TTransportException {
-        List<ShopService.Client> clients = new ArrayList<>();
+    public static Map<String, ShopService.Client> createClientsFromJSON(String jsonSource) throws IOException, ParseException, TTransportException {
+        Map<String, ShopService.Client> clients = new HashMap<>();
         Iterator<JSONObject> iter = getJSONObjectIterator(jsonSource);
         while (iter.hasNext()) {
             JSONObject server = iter.next();
-            clients.add(createShopServiceServer(server));
+            clients.put((String) server.get("name"),createShopServiceServer(server));
         }
         return clients;
     }

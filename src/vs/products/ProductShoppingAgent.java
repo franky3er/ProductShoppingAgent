@@ -1,6 +1,7 @@
 package vs.products;
 
 import org.apache.thrift.TException;
+import vs.products.billing.Bill;
 import vs.products.iohandler.database.ProductDatabaseHandler;
 import vs.products.iohandler.wrapper.ProductHistoryHandler;
 import vs.products.refillinfo.ProductRefillInfo;
@@ -8,6 +9,7 @@ import vs.shopservice.ShopService;
 
 import java.sql.Connection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class to refill the fridge depending on the refill information of each product
@@ -15,11 +17,12 @@ import java.util.List;
  */
 public class ProductShoppingAgent {
     private Connection connection;
-    private List<ShopService.Client> shops;
+    private Map<String, ShopService.Client> shops;
     private List<ProductRefillInfo> productsRefillInfo;
     private String deliveryAddress;
+    private long cheapestPrice;
 
-    public ProductShoppingAgent(Connection connection, List<ShopService.Client> clients,
+    public ProductShoppingAgent(Connection connection, Map<String, ShopService.Client> clients,
                                 List<ProductRefillInfo> productsRefillInfo, String deliveryAddress) {
         this.connection = connection;
         this.shops = clients;
@@ -69,7 +72,7 @@ public class ProductShoppingAgent {
                     ));
             return;
         }
-        ShopService.Client cheapestShop = getCheapestShop(product, refillAmount);
+        Map.Entry<String, ShopService.Client> cheapestShop = getCheapestShop(product, refillAmount);
         buyProduct(product, refillAmount, cheapestShop);
     }
 
@@ -115,17 +118,18 @@ public class ProductShoppingAgent {
         return Integer.toString(amountDesired - amountProduct);
     }
 
-    private ShopService.Client getCheapestShop(ScannedProduct product, String refillAmount) {
+    private Map.Entry<String, ShopService.Client> getCheapestShop(ScannedProduct product, String refillAmount) {
         System.out.println(
                 String.format(
                         "INFO : get cheapest shop for product: %s, amount: %s",
                         product.getName(), refillAmount
                 ));
-        ShopService.Client cheapestShop = null;
-        long cheapestPrice = -1;
-        for (ShopService.Client currentShop : shops) {
+        Map.Entry<String, ShopService.Client> cheapestShop = null;
+        cheapestPrice = -1;
+
+        for (Map.Entry<String, ShopService.Client> currentShop : shops.entrySet()) {
             try {
-                long currentPrice = currentShop.fetchProductPrice(product.getName(), refillAmount);
+                long currentPrice = currentShop.getValue().fetchProductPrice(product.getName(), refillAmount);
                 if (currentPrice >= 0 && cheapestPrice == -1) {
                     cheapestPrice = currentPrice;
                     cheapestShop = currentShop;
@@ -141,7 +145,7 @@ public class ProductShoppingAgent {
         return cheapestShop;
     }
 
-    private void buyProduct(ScannedProduct product, String amount, ShopService.Client shop) {
+    private void buyProduct(ScannedProduct product, String amount, Map.Entry<String, ShopService.Client> shop) {
         System.out.println(
                 String.format(
                         "INFO : Buy product: %s, amount: %s from shop",
@@ -150,12 +154,15 @@ public class ProductShoppingAgent {
         );
         try {
             if (shop != null) {
-                if (shop.buyProduct(product.getName(), amount, deliveryAddress)) {
+                if (shop.getValue().buyProduct(product.getName(), amount, deliveryAddress)) {
                     System.out.println(String.format(
                             "INFO : Buy product: %s, amount: %s Successful",
                             product.getName(), amount
                             )
                     );
+                    Bill bill = new Bill(System.currentTimeMillis(), shop.getKey(), product.getName(), amount,
+                            cheapestPrice);
+                    bill.book(connection);
                 } else {
                     System.err.println(String.format(
                             "INFO : Buy product: %s, amount: %s Failed",

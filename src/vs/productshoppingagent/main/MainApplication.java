@@ -4,6 +4,7 @@ import org.apache.thrift.TException;
 import org.apache.thrift.transport.TTransportException;
 import org.json.simple.parser.ParseException;
 import org.xml.sax.SAXException;
+import vs.products.iohandler.database.ProductDatabaseHandler;
 import vs.products.refillinfo.ProductRefillInfo;
 import vs.products.refillinfo.ProductRefillInfoFactory;
 import vs.products.ProductShoppingAgent;
@@ -17,6 +18,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -39,7 +41,7 @@ public class MainApplication {
     private static String productDBFileSource;
     private static String deliveryAddress;
 
-    private static List<ShopService.Client> clients;
+    private static Map<String, ShopService.Client> clients;
     private static List<ProductRefillInfo> productsRefillInfos;
     private static ProductShoppingAgent productShoppingAgent;
     private static Connection connection;
@@ -104,6 +106,8 @@ public class MainApplication {
     private static void initializeProductDB() throws SQLException, ClassNotFoundException {
         Class.forName(productDBDriver);
         connection = DriverManager.getConnection("jdbc:sqlite:" + productDBFileSource);
+        ProductDatabaseHandler productDatabaseHandler = new ProductDatabaseHandler(connection);
+        productDatabaseHandler.createTablesIfNotExist();
     }
 
     private static void initializeProductShoppingAgent() {
@@ -119,7 +123,7 @@ public class MainApplication {
     private static void closeClients() {
         System.out.println("INFO : Close ShopService clients..");
         if (clients != null) {
-            for (ShopService.Client client : clients) {
+            for (ShopService.Client client : clients.values()) {
                 client.getInputProtocol().getTransport().close();
             }
         }
